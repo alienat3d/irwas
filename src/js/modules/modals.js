@@ -10,25 +10,66 @@
 // ? Вообще, такие проверки на evt.target (объект события) делаются не просто так, а по причине того, что некоторые элементы на странице не поддерживают определённые события, некоторые не имеют свойство target и т.д. Конечно это скорее редкость, но всё же лучше это проверять.
 // 1.0.3 Сперва пропишем простейшую реализацию просто поменяв элементу модального окна свойство "display".
 // 1.0.4 Также допишем очень распространённый для модального окна кусочек кода. Т.к. без него при открытом модальном окне и при скролле мышкой будет скроллиться и вся страница. Обычно это поведение убирают, чтобы скроллилось только модальное окно, а страница сзади замирала, пока оно открыто.
-// 1.0.5 Теперь перейдём к закрытию модального окна. Здесь в обработчике события нам уже объект события не нужен и мы делаем обратную операцию
+// 1.0.5 Теперь перейдём к закрытию модального окна. Здесь в обработчике события нам уже объект события не нужен и мы делаем обратную операцию.
+// 1.0.6 Также нам нужно реализовать, чтобы если пользователь кликнул на область вне нашего модального окна, то оно тоже закроется.
+// 1.0.7 Получаем необходимые нам элементы из вёрстки.
+// 1.0.8 Вызываем функцию и передаём туда нужные нам элементы.
+// 1.1.0 Так как у нас несколько разных триггеров, то имеет смысл найти псевдо-коллекцию методом querySelectorAll(), а addEventListener поместить в метод перебора массивов forEach().
 const modals = () => {
-  function bindModal(trigger, modal, close) {
-    trigger.addEventListener('click', (evt) => {
-      if (evt.target) {
-        evt.preventDefault();
-      }
+  // const callEngineerBtn = document.querySelector('.popup_engineer_btn'),
+  //   modalEngineer = document.querySelector('.popup_engineer'),
+  //   modalEngineerClose = document.querySelector('.popup_engineer .popup_close');
 
-      modal.style.display = 'block';
+  const bindModal = (triggerSelector, modalSelector, closeSelector) => {
+    const trigger = document.querySelectorAll(triggerSelector),
+      modal = document.querySelector(modalSelector),
+      close = document.querySelector(closeSelector);
 
-      document.body.style.overflow = 'hidden';
+    trigger.forEach(btn => {
+      btn.addEventListener('click', (evt) => {
+        if (evt.target) {
+          evt.preventDefault();
+        }
+
+        modal.style.display = 'block';
+        // document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
+      });
     });
 
     close.addEventListener('click', () => {
       modal.style.display = 'none';
-
+      // document.body.classList.remove('modal-open');
       document.body.style.overflow = '';
     });
-  }
+    // 1.0.9 Скрываем модальное окно по клику на подложке (вне области контента модального окна). Подробнее говоря о том, как это работает: когда мы кликаем вне области контента модального окна, то это и будет родительский элемент из переменной modal, а если внутри области контента модального окна, то уже дочерние, например "form", "input" и т.д. и по клику на них модальное окно закрываться соответственно не будет.
+    modal.addEventListener('click', (evt) => {
+      if (evt.target === modal) {
+        modal.style.display = 'none';
+        // document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+      }
+    });
+
+    window.addEventListener('keydown', (evt) => {
+      if (evt.code === 'Escape') {
+        modal.style.display = 'none';
+        // document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+      }
+    });
+  };
+  // 1.2.0 Также для 10-го пункта ТЗ нам понадобится функция-таймер, чтобы модальное окно всплывало через 180 секунд. Функция будет принимать два аргумента - селектор модального окна и значение таймера
+  const showModalByTime = (selector, timer) => {
+    setTimeout(() => {
+      document.querySelector(selector).style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }, timer);
+  };
+
+  bindModal('.popup_engineer_btn', '.popup_engineer', '.popup_engineer .popup_close');
+  bindModal('.phone_link', '.popup', '.popup .popup_close');
+  showModalByTime('.popup', '180000');
 };
 
 export default modals;
