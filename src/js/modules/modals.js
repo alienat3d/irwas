@@ -60,16 +60,18 @@ const modals = () => {
     });
   };
   // 1.2.0 Также для 10-го пункта ТЗ нам понадобится функция-таймер, чтобы модальное окно всплывало через 180 секунд. Функция будет принимать два аргумента - селектор модального окна и значение таймера
-  const showModalByTime = (selector, timer) => {
-    setTimeout(() => {
-      document.querySelector(selector).style.display = 'block';
-      document.body.style.overflow = 'hidden';
-    }, timer);
-  };
+  // FIXME: вернуть перед выкатом на прод.
+  // const showModalByTime = (selector, timer) => {
+  //   setTimeout(() => {
+  //     document.querySelector(selector).style.display = 'block';
+  //     document.body.style.overflow = 'hidden';
+  //   }, timer);
+  // };
 
   bindModal('.popup_engineer_btn', '.popup_engineer', '.popup_engineer .popup_close');
   bindModal('.phone_link', '.popup', '.popup .popup_close');
-  showModalByTime('.popup', '180000');
+  // FIXME: вернуть перед выкатом на прод.
+  // showModalByTime('.popup', '180000');
 };
 
 export default modals;
