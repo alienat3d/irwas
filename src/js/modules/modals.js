@@ -70,6 +70,7 @@ const modalsFunc = () => {
 
   bindModal('.popup_engineer_btn', '.popup_engineer', '.popup_engineer .popup_close');
   bindModal('.phone_link', '.popup', '.popup .popup_close');
+  bindModal('.popup_calc_btn', '.popup_calc', '.popup_calc .popup_calc_close');
   // FIXME: вернуть перед выкатом на прод.
   // showModalByTime('.popup', '180000');
 };
