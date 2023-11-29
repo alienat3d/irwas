@@ -14,22 +14,27 @@
 // 1.0.6 Также нам нужно реализовать, чтобы если пользователь кликнул на область вне нашего модального окна, то оно тоже закроется.
 // 1.0.7 Получаем необходимые нам элементы из вёрстки.
 // 1.0.8 Вызываем функцию и передаём туда нужные нам элементы.
-// 1.1.0 Так как у нас несколько разных триггеров, то имеет смысл найти псевдо-коллекцию методом querySelectorAll(), а addEventListener поместить в метод перебора массивов forEach().
-const modalsFunc = () => {
-  // const callEngineerBtn = document.querySelector('.popup_engineer_btn'),
-  //   modalEngineer = document.querySelector('.popup_engineer'),
-  //   modalEngineerClose = document.querySelector('.popup_engineer .popup_close');
+// 1.1.0 Так как у нас несколько разных триггеров, то имеет смысл найти псевдоколлекцию методом querySelectorAll(), а addEventListener поместить в метод перебора массивов forEach().
 
-  const bindModal = (triggerSelector, modalSelector, closeSelector) => {
+// * 2.0 Дорабатываем логику модальных окон, чтобы не случилось бага, когда у нас будут наслаиваться одно модальное окно над другим, как может случиться, например по клику на кнопке "Далее" в модальных окнах калькулятора. Напишем скрипт, чтобы по клику далее или крестику закрывались все открытые модальные окна. Также продумывая UX модальных окон калькулятора, стоит заблокировать закрытие окна по клику вне зоны контента модального окна, конкретно для этого типа окон.
+// 2.1 Для начала пометим все модальные окна data-атрибутом "data-modal" в HTML.
+// 2.2 Получим все модальные окна в переменную windows, чтобы впоследствии закрыть. Ищем по паттерну ['...'], таким образом это поиск по атрибутам.
+// * 3.0 Теперь нам нужно контролировать какое модальное окно будет закрываться по клику на подложку, а какое нет. Для этого добавим ещё один атрибут в функцию clickCloseOverlay со значение по умолчанию "true". Т.о. если мы не передаём этот аргумент, то модальное окно будет закрываться по клику на подложку, пока мы не передадим туда значение false.
+// 3.1 Также там, где мы прописывали закрытие модального окна по клику на подложку добавим в условие также этот аргумент.
+const modalsFunc = () => {
+  const bindModal = (triggerSelector, modalSelector, closeSelector, clickCloseOverlay = true) => {
     const trigger = document.querySelectorAll(triggerSelector),
       modal = document.querySelector(modalSelector),
-      close = document.querySelector(closeSelector);
+      close = document.querySelector(closeSelector),
+      windows = document.querySelectorAll('[data-modal]');
 
     trigger.forEach(btn => {
       btn.addEventListener('click', (evt) => {
         if (evt.target) {
           evt.preventDefault();
         }
+
+        windows.forEach(window => window.style.display = 'none');
 
         modal.style.display = 'block';
         // document.body.classList.add('modal-open');
@@ -38,14 +43,16 @@ const modalsFunc = () => {
     });
 
     close.addEventListener('click', () => {
-      modal.style.display = 'none';
+      windows.forEach(window => window.style.display = 'none');
+      // modal.style.display = 'none';
       // document.body.classList.remove('modal-open');
       document.body.style.overflow = '';
     });
     // 1.0.9 Скрываем модальное окно по клику на подложке (вне области контента модального окна). Подробнее говоря о том, как это работает: когда мы кликаем вне области контента модального окна, то это и будет родительский элемент из переменной modal, а если внутри области контента модального окна, то уже дочерние, например "form", "input" и т.д. и по клику на них модальное окно закрываться соответственно не будет.
     modal.addEventListener('click', (evt) => {
-      if (evt.target === modal) {
-        modal.style.display = 'none';
+      if (evt.target === modal && clickCloseOverlay) {
+        windows.forEach(window => window.style.display = 'none');
+        // modal.style.display = 'none';
         // document.body.classList.remove('modal-open');
         document.body.style.overflow = '';
       }
@@ -53,7 +60,8 @@ const modalsFunc = () => {
 
     window.addEventListener('keydown', (evt) => {
       if (evt.code === 'Escape') {
-        modal.style.display = 'none';
+        windows.forEach(window => window.style.display = 'none');
+        // modal.style.display = 'none';
         // document.body.classList.remove('modal-open');
         document.body.style.overflow = '';
       }
@@ -67,10 +75,13 @@ const modalsFunc = () => {
   //     document.body.style.overflow = 'hidden';
   //   }, timer);
   // };
-
+  // ? Если б мы делали этот проект на фреймворках, то логичнее было бы рендерить модальные окна калькулятора балконных окон прямо из JS, но здесь работаем с обычной вёрсткой, поэтому приходится прописать все три модальных окна друг за другом.
   bindModal('.popup_engineer_btn', '.popup_engineer', '.popup_engineer .popup_close');
   bindModal('.phone_link', '.popup', '.popup .popup_close');
-  bindModal('.popup_calc_btn', '.popup_calc', '.popup_calc .popup_calc_close');
+
+  bindModal('.popup_calc_btn', '.popup_calc', '.popup_calc_close');
+  bindModal('.popup_calc_button', '.popup_calc_profile', '.popup_calc_profile_close', false);
+  bindModal('.popup_calc_profile_button', '.popup_calc_end', '.popup_calc_end_close', false);
   // FIXME: вернуть перед выкатом на прод.
   // showModalByTime('.popup', '180000');
 };
