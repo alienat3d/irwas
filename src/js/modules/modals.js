@@ -15,7 +15,7 @@
 // 1.0.7 Получаем необходимые нам элементы из вёрстки.
 // 1.0.8 Вызываем функцию и передаём туда нужные нам элементы.
 // 1.1.0 Так как у нас несколько разных триггеров, то имеет смысл найти псевдо-коллекцию методом querySelectorAll(), а addEventListener поместить в метод перебора массивов forEach().
-const modals = () => {
+const modalsFunc = () => {
   // const callEngineerBtn = document.querySelector('.popup_engineer_btn'),
   //   modalEngineer = document.querySelector('.popup_engineer'),
   //   modalEngineerClose = document.querySelector('.popup_engineer .popup_close');
@@ -74,4 +74,4 @@ const modals = () => {
   // showModalByTime('.popup', '180000');
 };
 
-export default modals;
+export default modalsFunc;

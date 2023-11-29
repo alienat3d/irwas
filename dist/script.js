@@ -1,6 +1,93 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/js/modules/forms.js":
+/*!*********************************!*\
+  !*** ./src/js/modules/forms.js ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+// * 1.0 В принципе все формы у нас в этом проекте одинаковы, они просто собирают информацию внутри себя и отправляют на сервер. Сложного функционала в них нет.
+// 1.1 Нам нужно получить из вёрстки все формы, что есть на странице и строки ввода, что есть внутри этих форм. А затем навесим обработчик события на все формы.
+// 1.2 Также имеет смысл как-то оповещать пользователя об успешности отправления его заявки на сервер. Для этого создадим отдельно переменную message.
+// 1.3.0 Переходим к реализации логики. С помощью метода forEach() переберём все формы и на каждую из них повесим обработчик события "submit".
+// 1.3.1 Зачем нам здесь объект события? Дело в том, что по стандарту, когда мы отправляем форму со страницы на сервер — она перезагружается и нам следует отменить это поведение, т.к. в ТЗ сказано, что формы должны уходить на сервер без перезагрузки при помощи AJAX. И неотъемлемой частью кода AJAX является отмена такого поведения браузера.
+// 1.4.0 Теперь нам нужно создать блок, где мы будем размещать сообщения пользователю об успешности отправки. Он будет создаваться при помощи скрипта только во время отправки формы.
+// 1.4.1 Чтобы слегка приукрасить форму добавим класс "status" и поместим этот блок в конец формы при помощи appendChild().
+// 1.5.0 Теперь необходимо собрать все данные, что есть у нас в форме. Сделаем это при помощи объекта formData. Этот специальный объект найдёт все инпуты, соберёт данные в специальную структуру и мы поместит её в переменную formData. 
+// ? При помощи FormData можно загружать всё, что угодно. Туда попадут и изображения и файлы, которые можно прикрепить к сообщению.
+// 1.5.1 И здесь есть один нюанс: в некоторых случаях мы могли бы отправить на сервер данные в виде FormData, но нам нужно удостовериться, что сервер принимает такие данные. Может ему будет необходим стандартный формат URL-encoded, а может JSON. В зависимости от этого мы будем отправлять запросы по разному.
+// 1.5.2 Теперь напишем сам запрос. Запишем её в виде стрелочной функции в переменной postData.
+// 1.5.3 И перед тем, как отправить сам запрос, логично было бы сообщить пользователю, что идёт загрузка. Найдём наш блок для сообщений и вставим в него текст, что идёт загрузка.
+// ? Зачем мы вынесли отправку запроса в отдельную функцию, когда можно было записать запрос fetch() прям в переборе форм forEach()? Так мы скроем некоторую реализацию, например, fetch API на самом деле вернёт promise. И этот promise мы должны ещё раз обработать. Т.е. вернуть либо JSON формат, либо текстового файла. И возможно этот функционал понадобится в будущем ещё.
+// 1.5.4 Итак в переменную resp (response) поместим метод запроса на сервер fetch(). Также нам понадобятся атрибуты url (адрес сервера, куда будем слать запросы) и data (передаваемые данные).
+// 1.5.5 Т.к. отправляем FormData, то заголовок ставить не будем.
+// 1.5.6 Запишем запрос с реализацией через async await. (Хотя можно и через then()). Теперь кода будет выполняться дальше, только после того, как отработает до конца запрос fetch.
+// 1.5.7 Т.к. text() у нас тоже асинхронная операция, нам следует также написать await, чтобы JS сперва дожидался её выполнения, а уже потом возвращал данные из функции.
+const formsFunc = () => {
+  const forms = document.querySelectorAll('form'),
+    inputs = document.querySelectorAll('input'),
+    phoneInputs = document.querySelectorAll('input[name="user_phone"]');
+  const message = {
+    loading: 'Идёт загрузка...',
+    success: 'Заявка успешно отправлена! Скоро с вами свяжется наш консультант.',
+    failure: 'Просим прощения, но что-то пошло не так, попробуйте отправить заявку снова.'
+  };
+  const postData = async (url, data) => {
+    document.querySelector('.status').textContent = message.loading;
+    let resp = await fetch(url, {
+      method: 'POST',
+      body: data
+    });
+    return await resp.text();
+  };
+  const clearInputs = () => {
+    inputs.forEach(input => {
+      input.value = '';
+    });
+  };
+  forms.forEach(form => {
+    form.addEventListener('submit', evt => {
+      evt.preventDefault();
+      let statusMessage = document.createElement('div');
+      statusMessage.classList.add('status');
+      form.appendChild(statusMessage);
+      const formData = new FormData(form);
+      // 1.6.0 Передаём в url файл сервера и данные, которые мы отправляем на сервер. Далее в методе then(), который срабатывает после получения ответа с сервера запишем response (resp) и здесь также уведомим пользователя сообщением.
+      // 1.6.1 Не забудем обработать возможную ошибку в блоке кода catch().
+      // 1.6.2 В блок кода finally() поместим функционал очистки инпутов. Ну и здесь же сообщение statusMessage требуется удалить через определённое время. Функционал очистки инпутов лучше даже вынести в отдельную функцию clearInputs.
+      postData('assets/server.php', formData).then(resp => {
+        console.log(resp);
+        statusMessage.textContent = message.success;
+      }).catch(() => {
+        statusMessage.textContent = message.failure;
+      }).finally(() => {
+        clearInputs();
+        setTimeout(() => {
+          statusMessage.remove();
+        }, 7000);
+      });
+      // ? Ещё одно уточнение: если бы у нас было больше запросов, например разные POST-запросы или ещё GET-запросы, то имело бы смысл создать дополнительный файл services.js, куда поместить эти запросы и импортировать их потом сюда.
+    });
+  });
+
+  // 1.7.0 Ещё нам нужно по ТЗ сделать так, чтобы поля телефона можно было вписать лишь цифры. Конечно можно было бы реализовать это в HTML type="phone", но не всегда есть доступ к HTML, к тому же сами инпуты могут быть в виде div'ов и нужно уметь делать такую валидацию в таких случаях.
+  // 1.7.1 Самый простой способ проверить текстовое значение — регулярное выражение, с помощью него мы можем отследить что вводит пользователь и если эти символы не соответствуют нашим критериям, то мы их просто удаляем. Соответственно здесь мы удалим все символы, которые будут не числами. При помощи метода строк replace() мы фильтруем регулярным выражением значение input, удаляем из него всё, кроме чисел и возвращаем обратно.
+  phoneInputs.forEach(input => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/, '');
+    });
+  });
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (formsFunc);
+
+/***/ }),
+
 /***/ "./src/js/modules/modals.js":
 /*!**********************************!*\
   !*** ./src/js/modules/modals.js ***!
@@ -29,7 +116,7 @@ __webpack_require__.r(__webpack_exports__);
 // 1.0.7 Получаем необходимые нам элементы из вёрстки.
 // 1.0.8 Вызываем функцию и передаём туда нужные нам элементы.
 // 1.1.0 Так как у нас несколько разных триггеров, то имеет смысл найти псевдо-коллекцию методом querySelectorAll(), а addEventListener поместить в метод перебора массивов forEach().
-const modals = () => {
+const modalsFunc = () => {
   // const callEngineerBtn = document.querySelector('.popup_engineer_btn'),
   //   modalEngineer = document.querySelector('.popup_engineer'),
   //   modalEngineerClose = document.querySelector('.popup_engineer .popup_close');
@@ -84,7 +171,7 @@ const modals = () => {
   // showModalByTime('.popup', '180000');
 };
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (modals);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (modalsFunc);
 
 /***/ }),
 
@@ -112,7 +199,7 @@ __webpack_require__.r(__webpack_exports__);
 // 1.5.2 В этом участке скрипта мы используем много раз evt.target, поэтому удобно поместить его в переменную target. Это будет тот элемент, на котором произошло событие, т.е. в нашем случае куда кликнул пользователь. И вот, как и в любом делегировании нам следует в условии удостовериться, что пользователь кликнул именно туда, куда мы ожидали. В этой проверке нам пригодится метод contains(), который проверит, что перед нами элемент с нужным классом. Внутрь проверки передаём класс вкладки tabSelector. Но так как contains() должен принимать класс без точки, а в tabSelector мы будем подставлять класс с точкой, то нам нужно эту точку вначале обрезать регулярным выражением и методом replace(). Первым аргументом этот метод примет то, что нужно заменить собственно экранированную точку, а вторым на что заменить '' означает ничего\просто удалить.
 // 1.5.3 Но ведь пользователь может кликнуть не только в саму вкладку, но и в какой-то её дочерний элемент. И здесь допишем ещё одно условие, которое проверит, что этот элемент относится к нашему tabSelector. И проверять будем не у самого элемента, а у его родительского элемента через parentNode.
 // 1.5.4 Теперь, когда мы в этом удостоверились, нам нужно узнать какой индекс у этой вкладки. В этом снова поможет метод forEach() с дополнительном аргументом индекса. Также пропишем условие, что если тот элемент, по которому кликнул пользователь соответствует тому, что перебирается в методе forEach() или его родительский элемент соответствует, то мы используем его индекс. И мы снова вызываем hideTabContent();, скрывая весь контент, а потом подставляем index в showTabContent(index);, показывая только тот контент, который соответствует только что кликнутой вкладке.
-const tabs = (headerSelector, tabSelector, contentSelector, activeClass) => {
+const tabsFunc = (headerSelector, tabSelector, contentSelector, activeClass) => {
   const header = document.querySelector(headerSelector),
     tab = document.querySelectorAll(tabSelector),
     content = document.querySelectorAll(contentSelector);
@@ -138,7 +225,7 @@ const tabs = (headerSelector, tabSelector, contentSelector, activeClass) => {
   hideTabContent();
   showTabContent();
 };
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (tabs);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (tabsFunc);
 
 /***/ }),
 
@@ -14055,15 +14142,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _slider__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./slider */ "./src/js/slider.js");
 /* harmony import */ var _modules_modals__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/modals */ "./src/js/modules/modals.js");
 /* harmony import */ var _modules_tabs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/tabs */ "./src/js/modules/tabs.js");
+/* harmony import */ var _modules_forms__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/forms */ "./src/js/modules/forms.js");
+
 
 
 
 
 // Заметка: в то время, как все действия с модальным окнами мы скрыли внутри модуля modals. Это удобнее, т.к. внутри есть и функция bindModals(), которая подвязывает модальные окна к определённым триггерам и также функция, которая отвечает за вызов модального окна через определённое время. Вкладки лучше импортировать, как отдельную функцию и прямо здесь её настроить.
 window.addEventListener('DOMContentLoaded', () => {
+  'use strict';
+
   (0,_modules_modals__WEBPACK_IMPORTED_MODULE_1__["default"])();
   (0,_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.glazing_slider', '.glazing_block', '.glazing_content', 'active');
   (0,_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.decoration_slider', '.no_click', '.decoration_content > div > div', 'after_click');
+  (0,_modules_forms__WEBPACK_IMPORTED_MODULE_3__["default"])();
 });
 })();
 
