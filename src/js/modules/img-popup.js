@@ -23,7 +23,7 @@ const imgPopup = () => {
     workSection = document.querySelector('.works'),
     bigImg = document.createElement('img');
 
-  popup.classList.add('popup');
+  popup.classList.add('popup_image');
   workSection.appendChild(popup);
 
   popup.classList.add('flex-centered');
@@ -42,7 +42,7 @@ const imgPopup = () => {
       bigImg.setAttribute('src', path);
     }
 
-    if (target && target.matches('div.popup')) {
+    if (target && target.matches('div.popup_image')) {
       popup.style.display = 'none';
     }
   });

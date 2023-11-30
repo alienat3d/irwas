@@ -882,7 +882,8 @@ textarea:focus {
 /*Modals*/
 .popup,
 .popup_engineer,
-.popup_calc_end {
+.popup_calc_end,
+.popup_image {
   z-index: 9;
   display: none;
   position: fixed;

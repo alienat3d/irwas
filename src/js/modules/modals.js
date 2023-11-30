@@ -22,12 +22,12 @@
 // * 3.0 Теперь нам нужно контролировать какое модальное окно будет закрываться по клику на подложку, а какое нет. Для этого добавим ещё один атрибут в функцию clickCloseOverlay со значение по умолчанию "true". Т.о. если мы не передаём этот аргумент, то модальное окно будет закрываться по клику на подложку, пока мы не передадим туда значение false.
 // 3.1 Также там, где мы прописывали закрытие модального окна по клику на подложку добавим в условие также этот аргумент.
 const modalsFunc = () => {
+  const scroll = calcScroll();
   const bindModal = (triggerSelector, modalSelector, closeSelector, clickCloseOverlay = true) => {
     const trigger = document.querySelectorAll(triggerSelector),
       modal = document.querySelector(modalSelector),
       close = document.querySelector(closeSelector),
-      windows = document.querySelectorAll('[data-modal]'),
-      scroll = calcScroll();
+      windows = document.querySelectorAll('[data-modal]');
 
     trigger.forEach(btn => {
       btn.addEventListener('click', (evt) => {
@@ -82,12 +82,15 @@ const modalsFunc = () => {
   };
   // 1.2.0 Также для 10-го пункта ТЗ нам понадобится функция-таймер, чтобы модальное окно всплывало через 180 секунд. Функция будет принимать два аргумента - селектор модального окна и значение таймера
   // FIXME: вернуть перед выкатом на прод.
-  // const showModalByTime = (selector, timer) => {
-  //   setTimeout(() => {
-  //     document.querySelector(selector).style.display = 'block';
-  //     document.body.style.overflow = 'hidden';
-  //   }, timer);
-  // };
+  const showModalByTime = (selector, timer, scrollWidth) => {
+    setTimeout(() => {
+      document.querySelector(selector).style.display = 'block';
+      document.body.style.cssText = `
+        overflow: hidden;
+        margin-right: ${scrollWidth}px;
+      `;
+    }, timer);
+  };
   // ? Если б мы делали этот проект на фреймворках, то логичнее было бы рендерить модальные окна калькулятора балконных окон прямо из JS, но здесь работаем с обычной вёрсткой, поэтому приходится прописать все три модальных окна друг за другом.
 
   // * 4.0 Настало время исправить баг, когда при открытии модальных окон исчезает скроллбар справа и из-за этого весь сайт будто бы прыгает вправо. Мы можем исправить это поведение, добавляя отступ ровно на ширину скроллбара, и желательно найти её программно, т.к. в разных браузерах это значение может быть разным. Этим у нас будет заниматься функция calcScroll().
@@ -97,7 +100,7 @@ const modalsFunc = () => {
   // 4.4 Теперь собственно к вычислению ширины скроллбара. Для этого мы берём наш div и узнаём его полную ширину (включая scrollbar) свойством offsetWidth и из него вычитаем значение из свойства clientWidth, где находится ширина только самого главного контента, включая padding. Но самое главное, что туда не включается ширина scrollbar. Так мы получим точную ширину самого scrollbar.
   // 4.5 Ну и после измерений нам этот div уже не нужен, можно смело его удалять.
   // 4.6 Теперь запишем в переменную scroll результаты наших измерений. ↑
-  const calcScroll = () => {
+  function calcScroll () {
     let div = document.createElement('div');
 
     div.style.width = '50px';
@@ -112,7 +115,7 @@ const modalsFunc = () => {
     div.remove();
 
     return scrollWidth;
-  };
+  }
 
   bindModal('.popup_engineer_btn', '.popup_engineer', '.popup_engineer .popup_close');
   bindModal('.phone_link', '.popup', '.popup .popup_close');
@@ -121,7 +124,7 @@ const modalsFunc = () => {
   bindModal('.popup_calc_button', '.popup_calc_profile', '.popup_calc_profile_close', false);
   bindModal('.popup_calc_profile_button', '.popup_calc_end', '.popup_calc_end_close', false);
   // FIXME: вернуть перед выкатом на прод.
-  // showModalByTime('.popup', '180000');
+  showModalByTime('.popup', '60000', scroll);
 };
 
 export default modalsFunc;
