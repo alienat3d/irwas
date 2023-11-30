@@ -1,6 +1,118 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/js/modules/change-modal-state.js":
+/*!**********************************************!*\
+  !*** ./src/js/modules/change-modal-state.js ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _check_num_inputs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./check-num-inputs */ "./src/js/modules/check-num-inputs.js");
+// * 1.0 Итак начнём работу с состоянием модального окна калькулятора балконного окна, куда мы будем заносить все выбранные и введённые данные пользователем для отправки заказа.
+/* 1.1 Далее получим элементы, с которыми будем работать. И у нас есть 5 видов выбора, которые должен сделать пользователь:
+  1) форма балкона;
+  2) ширина;
+  3) высота;
+  4) профиль остекления;
+  5) холодный или тёплый тип остекления.
+*/
+// 1.2.0 Теперь методом перебора forEach() переберём наши вкладки форм окна. Здесь нам также пригодится индекс, т.к. когда будет произведён клик по определённому элементу, то его индекс нужно записать в объект state. Т.о. мы сможем сохранить какой вид формы выбрал пользователь.
+// 1.2.1 Теперь навесим на каждую вкладку выбора формы окна обработчик события и пропишем в коллбэк-функцию, что в свойство form объекта state будет записываться индекс элемента, по которому кликнули.
+// 1.3.0 Теперь нам нужно все оставшееся элементы точно также подвязать к определённым обработчикам события и при взаимодействия пользователя с ними записывать в state-объект как отдельные свойства со значениями. И здесь можно оптимизировать код, ведь здесь будет повторяться один и тот же алгоритм. Потому удобно будет написать одну функцию, которая будет всё это выполнять за нас, а мы будем подставлять разные аргументы.
+// 1.3.1 Такой функцией у нас будет bindActionsToElements() и она примет три аргумента: event (то событие, которое нас интересует), element (элемент, на котором будет происходить событие) и property (свойство, которое будет меняться в state-объекте).
+// 1.3.2 Продолжаем модернизировать нашу функцию bindActionsToElements(). Дальше нам нужно получить выбор select и checkbox. Обоим этим элементам больше подойдёт событие "change".
+// 1.3.3 В калькуляторе мы взаимодействуем с 3-мя видами элементов на странице: <span>, <input> & <select>. Итак, мы можем сперва сделать проверку с каким элементом (нодой) взаимодействует пользователь и уже в зависимости от этого выполнять те или иные действия. Здесь нам пригодится такое свойство, как "nodeName" и этот параметр приходит в виде строки. А мы знаем, что если у нас есть строка и мы хотим её сравнить с многими значениями, то отлично подходит конструкция "switch case". Передадим внутрь строку, которая точно будет знать какая сейчас нужна нода.
+// 1.3.4 Также там, где инпуты имеет смысл сделать ещё одно разветвление, т.к. у нас есть два вида инпута, одни чекбоксы, а другие, где пользователь вводит цифры. Поэтому допишем ещё одно условие.
+// 1.3.5 Итак, где у нас чекбоксы прописываем тернарный оператор. И если индекс равен 0, то запишем в свойство "Холодное", иначе пропишем "Тёплое". 
+// 1.3.6 Также следует прописать так, чтобы пользователь мог выбрать лишь один чекбокс. Возьмём все чекбоксы, которые лежат в element и пройдёмся по ним методом forEach(). Уберём все галочки с чекбоксов, кроме того, на который кликнул пользователь.
+// * 1.4.0 Теперь, когда создание state-объекта готово, нам нужно присоединить его к отправке данных из формы, добавив в FormData именно этой формы из калькулятора. Для этого нужно как-то особенно её обозначить.
+// 1.4.1 Добавим в HTML к нужной нам форме новый атрибут data-calc="end", чтобы JS мог потом её найти.
+// 1.4.2 Теперь снова перейдём в main.js
+
+const changeModalStateFunc = state => {
+  const windowForm = document.querySelectorAll('.balcon_icons_img'),
+    windowWidth = document.querySelectorAll('#width'),
+    windowHeight = document.querySelectorAll('#height'),
+    windowType = document.querySelectorAll('#view_type'),
+    windowProfile = document.querySelectorAll('.checkbox');
+
+  // ? Итак, если мы будем передавать в element конкретный элемент, то наш скрипт не сработает, т.к. forEach() работает с массивами. И выхода здесь как минимум 2: 1) можно написать условие, которое будет проверять количество элементов в атрибуте element и если там лишь 1 элемент, то мы назначим просто обработчик события, а если там несколько элементов, то это значит, что там массив или живая коллекция, тогда её будем перебирать с помощью forEach(); 2) можно получать все элементы с помощью метода querySelectorAll() и тогда везде будут псевдомассивы. Даже если в псевдомассиве будет 1 элемент, то forEach() всё равно правильно сработает.
+
+  const bindActionsToElements = (event, element, property) => {
+    element.forEach((item, index) => {
+      item.addEventListener(event, () => {
+        switch (item.nodeName) {
+          case 'SPAN':
+            state[property] = index;
+            break;
+          case 'INPUT':
+            if (item.getAttribute('type') === 'checkbox') {
+              index === 0 ? state[property] = 'Холодное' : state[property] = 'Тёплое';
+              element.forEach((checkbox, idx) => {
+                checkbox.checked = false;
+                if (index == idx) {
+                  checkbox.checked = true;
+                }
+              });
+            } else {
+              state[property] = item.value;
+            }
+            break;
+          case 'SELECT':
+            state[property] = item.value;
+            break;
+        }
+        console.log(state);
+      });
+    });
+  };
+
+  /* windowForm.forEach((choice, index) => {
+    choice.addEventListener('click', () => {
+      state.form = index;
+    });
+  }); */
+
+  (0,_check_num_inputs__WEBPACK_IMPORTED_MODULE_0__["default"])('#width');
+  (0,_check_num_inputs__WEBPACK_IMPORTED_MODULE_0__["default"])('#height');
+  bindActionsToElements('click', windowForm, 'form');
+  bindActionsToElements('input', windowWidth, 'width');
+  bindActionsToElements('input', windowHeight, 'height');
+  bindActionsToElements('change', windowType, 'type');
+  bindActionsToElements('change', windowProfile, 'profile');
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (changeModalStateFunc);
+
+/***/ }),
+
+/***/ "./src/js/modules/check-num-inputs.js":
+/*!********************************************!*\
+  !*** ./src/js/modules/check-num-inputs.js ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+const checkNumInputsFunc = selector => {
+  const numInputs = document.querySelectorAll(selector);
+  numInputs.forEach(input => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/\D/, '');
+    });
+  });
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (checkNumInputsFunc);
+
+/***/ }),
+
 /***/ "./src/js/modules/forms.js":
 /*!*********************************!*\
   !*** ./src/js/modules/forms.js ***!
@@ -12,6 +124,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
+/* harmony import */ var _check_num_inputs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./check-num-inputs */ "./src/js/modules/check-num-inputs.js");
 // * 1.0 В принципе все формы у нас в этом проекте одинаковы, они просто собирают информацию внутри себя и отправляют на сервер. Сложного функционала в них нет.
 // 1.1 Нам нужно получить из вёрстки все формы, что есть на странице и строки ввода, что есть внутри этих форм. А затем навесим обработчик события на все формы.
 // 1.2 Также имеет смысл как-то оповещать пользователя об успешности отправления его заявки на сервер. Для этого создадим отдельно переменную message.
@@ -29,10 +142,12 @@ __webpack_require__.r(__webpack_exports__);
 // 1.5.5 Т.к. отправляем FormData, то заголовок ставить не будем.
 // 1.5.6 Запишем запрос с реализацией через async await. (Хотя можно и через then()). Теперь кода будет выполняться дальше, только после того, как отработает до конца запрос fetch.
 // 1.5.7 Т.к. text() у нас тоже асинхронная операция, нам следует также написать await, чтобы JS сперва дожидался её выполнения, а уже потом возвращал данные из функции.
-const formsFunc = () => {
+// * 2 Так как удалять всё, кроме цифр из строки ввода нам требуется сразу в нескольких местах, то мы вынесли эту валидацию в [check-num-inputs.js]. Теперь её нужно сюда оттуда подключить.
+// * 3.0 Передадим в главную функцию formsFunc() атрибутом state-объект. Хотя использоваться он будет только в единичном случае, когда мы будем отправлять данные из нашего popup-калькулятора. Перейдём к FormData ↓
+
+const formsFunc = state => {
   const forms = document.querySelectorAll('form'),
-    inputs = document.querySelectorAll('input'),
-    phoneInputs = document.querySelectorAll('input[name="user_phone"]');
+    inputs = document.querySelectorAll('input');
   const message = {
     loading: 'Идёт загрузка...',
     success: 'Заявка успешно отправлена! Скоро с вами свяжется наш консультант.',
@@ -58,6 +173,13 @@ const formsFunc = () => {
       statusMessage.classList.add('status');
       form.appendChild(statusMessage);
       const formData = new FormData(form);
+      // * 3.1 Создадим условие, что если у формы, которую браузер собирается отправить есть определённый атрибут, то мы добавим ещё данные из state-объекта в довесок. Если условие выполняется, то мы берём state-объект и разбираем с помощью "for...in" на отдельные ключи и значения. И вот каждые эти пары мы будем добавлять методом append() в FormData. У этого метода есть два аргумента первый будет ключом (key), а второй значением (state[key]).
+      if (form.getAttribute('data-calc') === 'end') {
+        for (let key in state) {
+          formData.append(key, state[key]);
+        }
+      }
+
       // 1.6.0 Передаём в url файл сервера и данные, которые мы отправляем на сервер. Далее в методе then(), который срабатывает после получения ответа с сервера запишем response (resp) и здесь также уведомим пользователя сообщением.
       // 1.6.1 Не забудем обработать возможную ошибку в блоке кода catch().
       // 1.6.2 В блок кода finally() поместим функционал очистки инпутов. Ну и здесь же сообщение statusMessage требуется удалить через определённое время. Функционал очистки инпутов лучше даже вынести в отдельную функцию clearInputs.
@@ -78,12 +200,15 @@ const formsFunc = () => {
 
   // 1.7.0 Ещё нам нужно по ТЗ сделать так, чтобы поля телефона можно было вписать лишь цифры. Конечно можно было бы реализовать это в HTML type="phone", но не всегда есть доступ к HTML, к тому же сами инпуты могут быть в виде div'ов и нужно уметь делать такую валидацию в таких случаях.
   // 1.7.1 Самый простой способ проверить текстовое значение — регулярное выражение, с помощью него мы можем отследить что вводит пользователь и если эти символы не соответствуют нашим критериям, то мы их просто удаляем. Соответственно здесь мы удалим все символы, которые будут не числами. При помощи метода строк replace() мы фильтруем регулярным выражением значение input, удаляем из него всё, кроме чисел и возвращаем обратно.
-  phoneInputs.forEach(input => {
+  (0,_check_num_inputs__WEBPACK_IMPORTED_MODULE_0__["default"])('input[name="user_phone"]');
+  // todo код ниже перенесён в check-num-inputs.js, а от переменной мы избавились, поместив в функцию сам селектор.
+  /* phoneInputs.forEach(input => {
     input.addEventListener('input', () => {
       input.value = input.value.replace(/\D/, '');
     });
-  });
+  }); */
 };
+
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (formsFunc);
 
 /***/ }),
@@ -115,42 +240,49 @@ __webpack_require__.r(__webpack_exports__);
 // 1.0.6 Также нам нужно реализовать, чтобы если пользователь кликнул на область вне нашего модального окна, то оно тоже закроется.
 // 1.0.7 Получаем необходимые нам элементы из вёрстки.
 // 1.0.8 Вызываем функцию и передаём туда нужные нам элементы.
-// 1.1.0 Так как у нас несколько разных триггеров, то имеет смысл найти псевдо-коллекцию методом querySelectorAll(), а addEventListener поместить в метод перебора массивов forEach().
-const modalsFunc = () => {
-  // const callEngineerBtn = document.querySelector('.popup_engineer_btn'),
-  //   modalEngineer = document.querySelector('.popup_engineer'),
-  //   modalEngineerClose = document.querySelector('.popup_engineer .popup_close');
+// 1.1.0 Так как у нас несколько разных триггеров, то имеет смысл найти псевдоколлекцию методом querySelectorAll(), а addEventListener поместить в метод перебора массивов forEach().
 
-  const bindModal = (triggerSelector, modalSelector, closeSelector) => {
+// * 2.0 Дорабатываем логику модальных окон, чтобы не случилось бага, когда у нас будут наслаиваться одно модальное окно над другим, как может случиться, например по клику на кнопке "Далее" в модальных окнах калькулятора. Напишем скрипт, чтобы по клику далее или крестику закрывались все открытые модальные окна. Также продумывая UX модальных окон калькулятора, стоит заблокировать закрытие окна по клику вне зоны контента модального окна, конкретно для этого типа окон.
+// 2.1 Для начала пометим все модальные окна data-атрибутом "data-modal" в HTML.
+// 2.2 Получим все модальные окна в переменную windows, чтобы впоследствии закрыть. Ищем по паттерну ['...'], таким образом это поиск по атрибутам.
+// * 3.0 Теперь нам нужно контролировать какое модальное окно будет закрываться по клику на подложку, а какое нет. Для этого добавим ещё один атрибут в функцию clickCloseOverlay со значение по умолчанию "true". Т.о. если мы не передаём этот аргумент, то модальное окно будет закрываться по клику на подложку, пока мы не передадим туда значение false.
+// 3.1 Также там, где мы прописывали закрытие модального окна по клику на подложку добавим в условие также этот аргумент.
+const modalsFunc = () => {
+  const bindModal = (triggerSelector, modalSelector, closeSelector, clickCloseOverlay = true) => {
     const trigger = document.querySelectorAll(triggerSelector),
       modal = document.querySelector(modalSelector),
-      close = document.querySelector(closeSelector);
+      close = document.querySelector(closeSelector),
+      windows = document.querySelectorAll('[data-modal]');
     trigger.forEach(btn => {
       btn.addEventListener('click', evt => {
         if (evt.target) {
           evt.preventDefault();
         }
+        windows.forEach(window => window.style.display = 'none');
         modal.style.display = 'block';
         // document.body.classList.add('modal-open');
         document.body.style.overflow = 'hidden';
       });
     });
     close.addEventListener('click', () => {
-      modal.style.display = 'none';
+      windows.forEach(window => window.style.display = 'none');
+      // modal.style.display = 'none';
       // document.body.classList.remove('modal-open');
       document.body.style.overflow = '';
     });
     // 1.0.9 Скрываем модальное окно по клику на подложке (вне области контента модального окна). Подробнее говоря о том, как это работает: когда мы кликаем вне области контента модального окна, то это и будет родительский элемент из переменной modal, а если внутри области контента модального окна, то уже дочерние, например "form", "input" и т.д. и по клику на них модальное окно закрываться соответственно не будет.
     modal.addEventListener('click', evt => {
-      if (evt.target === modal) {
-        modal.style.display = 'none';
+      if (evt.target === modal && clickCloseOverlay) {
+        windows.forEach(window => window.style.display = 'none');
+        // modal.style.display = 'none';
         // document.body.classList.remove('modal-open');
         document.body.style.overflow = '';
       }
     });
     window.addEventListener('keydown', evt => {
       if (evt.code === 'Escape') {
-        modal.style.display = 'none';
+        windows.forEach(window => window.style.display = 'none');
+        // modal.style.display = 'none';
         // document.body.classList.remove('modal-open');
         document.body.style.overflow = '';
       }
@@ -164,9 +296,12 @@ const modalsFunc = () => {
   //     document.body.style.overflow = 'hidden';
   //   }, timer);
   // };
-
+  // ? Если б мы делали этот проект на фреймворках, то логичнее было бы рендерить модальные окна калькулятора балконных окон прямо из JS, но здесь работаем с обычной вёрсткой, поэтому приходится прописать все три модальных окна друг за другом.
   bindModal('.popup_engineer_btn', '.popup_engineer', '.popup_engineer .popup_close');
   bindModal('.phone_link', '.popup', '.popup .popup_close');
+  bindModal('.popup_calc_btn', '.popup_calc', '.popup_calc_close');
+  bindModal('.popup_calc_button', '.popup_calc_profile', '.popup_calc_profile_close', false);
+  bindModal('.popup_calc_profile_button', '.popup_calc_end', '.popup_calc_end_close', false);
   // FIXME: вернуть перед выкатом на прод.
   // showModalByTime('.popup', '180000');
 };
@@ -199,7 +334,8 @@ __webpack_require__.r(__webpack_exports__);
 // 1.5.2 В этом участке скрипта мы используем много раз evt.target, поэтому удобно поместить его в переменную target. Это будет тот элемент, на котором произошло событие, т.е. в нашем случае куда кликнул пользователь. И вот, как и в любом делегировании нам следует в условии удостовериться, что пользователь кликнул именно туда, куда мы ожидали. В этой проверке нам пригодится метод contains(), который проверит, что перед нами элемент с нужным классом. Внутрь проверки передаём класс вкладки tabSelector. Но так как contains() должен принимать класс без точки, а в tabSelector мы будем подставлять класс с точкой, то нам нужно эту точку вначале обрезать регулярным выражением и методом replace(). Первым аргументом этот метод примет то, что нужно заменить собственно экранированную точку, а вторым на что заменить '' означает ничего\просто удалить.
 // 1.5.3 Но ведь пользователь может кликнуть не только в саму вкладку, но и в какой-то её дочерний элемент. И здесь допишем ещё одно условие, которое проверит, что этот элемент относится к нашему tabSelector. И проверять будем не у самого элемента, а у его родительского элемента через parentNode.
 // 1.5.4 Теперь, когда мы в этом удостоверились, нам нужно узнать какой индекс у этой вкладки. В этом снова поможет метод forEach() с дополнительном аргументом индекса. Также пропишем условие, что если тот элемент, по которому кликнул пользователь соответствует тому, что перебирается в методе forEach() или его родительский элемент соответствует, то мы используем его индекс. И мы снова вызываем hideTabContent();, скрывая весь контент, а потом подставляем index в showTabContent(index);, показывая только тот контент, который соответствует только что кликнутой вкладке.
-const tabsFunc = (headerSelector, tabSelector, contentSelector, activeClass) => {
+// * 2.0.0 Для реализации popup-калькулятора на понадобится ещё один аргумент display. А в main.js создаём ещё один вызов вкладок для калькулятора.
+const tabsFunc = (headerSelector, tabSelector, contentSelector, activeClass, display = 'block') => {
   const header = document.querySelector(headerSelector),
     tab = document.querySelectorAll(tabSelector),
     content = document.querySelectorAll(contentSelector);
@@ -208,7 +344,7 @@ const tabsFunc = (headerSelector, tabSelector, contentSelector, activeClass) => 
     tab.forEach(tab => tab.classList.remove(activeClass));
   };
   const showTabContent = (index = 0) => {
-    content[index].style.display = 'block';
+    content[index].style.display = display;
     tab[index].classList.add(activeClass);
   };
   header.addEventListener('click', evt => {
@@ -226,6 +362,28 @@ const tabsFunc = (headerSelector, tabSelector, contentSelector, activeClass) => 
   showTabContent();
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (tabsFunc);
+
+/***/ }),
+
+/***/ "./src/js/modules/timer.js":
+/*!*********************************!*\
+  !*** ./src/js/modules/timer.js ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/*  1.0.0 Прежде, чем писать наш собственный таймер продумаем весь алгоритм:
+  1) Изначально нам понадобится функция, которая будет определять количество времени, оставшееся до окончания нашего дедлайна;
+  2) Эта функция будет принимать определённые данные, которые мы установим, вычислять остаток и потом из этого остатка составлять количество секунд, минут, часов и дней;
+  3) Также нам понадобится функция, которая будет устанавливать таймер. Она будет содержать в себе элементы, которые будут располагать данными, которые придут из первой функции. Т.е. в какой элемент вставить кол-во секунда, минут и т.д.;
+  4) Кроме этого она циклично будет запускать ещё одну функцию, которая будет обновлять в ней время. Т.е. эта функция будет каждую секунду вычислять остаток до дедлайна и обновлять данные на странице.
+*/
+const timerFunc = () => {};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (timerFunc);
 
 /***/ }),
 
@@ -14143,19 +14301,29 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_modals__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/modals */ "./src/js/modules/modals.js");
 /* harmony import */ var _modules_tabs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/tabs */ "./src/js/modules/tabs.js");
 /* harmony import */ var _modules_forms__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/forms */ "./src/js/modules/forms.js");
+/* harmony import */ var _modules_change_modal_state__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/change-modal-state */ "./src/js/modules/change-modal-state.js");
+/* harmony import */ var _modules_timer__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/timer */ "./src/js/modules/timer.js");
 
 
 
 
 
-// Заметка: в то время, как все действия с модальным окнами мы скрыли внутри модуля modals. Это удобнее, т.к. внутри есть и функция bindModals(), которая подвязывает модальные окна к определённым триггерам и также функция, которая отвечает за вызов модального окна через определённое время. Вкладки лучше импортировать, как отдельную функцию и прямо здесь её настроить.
+
+
+// ? Заметка: в то время, как все действия с модальным окнами мы скрыли внутри модуля modals. Это удобнее, т.к. внутри есть и функция bindModals(), которая подвязывает модальные окна к определённым триггерам и также функция, которая отвечает за вызов модального окна через определённое время. Вкладки лучше импортировать, как отдельную функцию и прямо здесь её настроить.
+// * 1.0 Создадим пустой объект состояния модального окна калькулятора балконного окна, куда мы будем заносить все выбранные и введённые данные пользователем для отправки заказа.
 window.addEventListener('DOMContentLoaded', () => {
   'use strict';
 
+  let modalState = {};
   (0,_modules_modals__WEBPACK_IMPORTED_MODULE_1__["default"])();
   (0,_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.glazing_slider', '.glazing_block', '.glazing_content', 'active');
   (0,_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.decoration_slider', '.no_click', '.decoration_content > div > div', 'after_click');
-  (0,_modules_forms__WEBPACK_IMPORTED_MODULE_3__["default"])();
+  (0,_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.balcon_icons', '.balcon_icons_img', '.big_img > img', 'do_image_more', 'inline-block');
+  // * Чтобы отправляемая форма знала о нашем объекте modalState, нужно его передать в функцию formsFunc().
+  (0,_modules_forms__WEBPACK_IMPORTED_MODULE_3__["default"])(modalState);
+  (0,_modules_change_modal_state__WEBPACK_IMPORTED_MODULE_4__["default"])(modalState);
+  (0,_modules_timer__WEBPACK_IMPORTED_MODULE_5__["default"])();
 });
 })();
 
