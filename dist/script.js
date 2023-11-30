@@ -213,6 +213,63 @@ const formsFunc = state => {
 
 /***/ }),
 
+/***/ "./src/js/modules/img-popup.js":
+/*!*************************************!*\
+  !*** ./src/js/modules/img-popup.js ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* // * 1.0.0 Продумаем алгоритм: 
+  1) Т.к. у нас тут много одинаковых элементов, то разумно будет воспользоваться делегированием — повесить обработчик события на всю область, которая содержит эти элементы; 
+  2) Далее нам понадобится создать модальное окно, которое будет показывать картинку с тёмной полупрозрачной подложкой;
+  3) Сделать это можно воспользовавшись классом "popup", который уже есть в CSS и отвечает за модальные окна;
+  4) Также мы создадим элемент IMG, который мы поместим в модальное окно и поменяем ему атрибут "src", чтобы картинка ссылалась на то, что нам нужно;
+  5) Добавим, знакомый по другим модальным окнам, функционал, чтобы при клике на подложку модальное окно закрывалось.
+*/
+// 1.1.0 Сперва понадобится создавать блок, куда мы будем это всё помещать и для него отдельную переменную popup.
+// 1.1.1 Получаем общий блок для всех изображений workSection.
+// 1.1.2 Также необходимо создать изображение bigImg
+// 1.2.0 Чтобы popup выглядел нормально добавим созданному div'у класс "popup".
+// 1.2.1 При помощи метода appendChild добавим его в общую секцию workSection на странице.
+// 1.2.2 Ну и в это же модальное окно хотелось бы поместить также и <img>, которое создали.
+// 1.2.3 Чтобы изображение центрировалось в модальном окне добавим специально подготовленный класс "flex-centered".
+// 1.3.0 Повесим обработчик события на всю рабочую секцию. Не забываем про объект события, раз мы пользуемся делегированием.
+// 1.3.1 Отменим стандартное поведение ссылок и запишем event.target в переменную target для удобства и лаконичности кода.
+// 1.3.2 Далее идёт классическое условие: проверка на наличие у элемента события "click" и проверка методом contains(), что у элемента есть класс "preview". И если условие выполняется, то мы покажем модальное окно.
+// 1.3.3 Далее мы должны показать именно ту картинку, на которую кликнул пользователь. Сперва получим в переменную path путь к большому изображению. Запишем evt.target.parentNode, таким образом обратимся к родителю, т.к. именно родительская ссылка содержит в себе путь к большому изображению, как мы увидели из вёрстки. И методом getAttribute('href') получаем искомую ссылку.
+// 1.3.4 Ну, а теперь мы можем использовать эту ссылку для отображения нашего bigImg, передав ему путь из path.
+// 1.4.0 Также нам нужно добавить функционал, чтобы модальное окно закрывалось при клике на подложку. Для этого напишем условие, что событие вообще существует, а также проверим, что пользователь кликнул не в изображение, а в именно сам popup, который появился. В этом пригодится метод matches(). В него аргументом передаём строку селектор, по которому будем искать совпадение (div с классом 'popup'). Так мы удостоверимся, что пользователь кликнул на подложку.
+const imgPopup = () => {
+  const popup = document.createElement('div'),
+    workSection = document.querySelector('.works'),
+    bigImg = document.createElement('img');
+  popup.classList.add('popup');
+  workSection.appendChild(popup);
+  popup.classList.add('flex-centered');
+  popup.style.display = 'none';
+  popup.appendChild(bigImg);
+  workSection.addEventListener('click', evt => {
+    evt.preventDefault();
+    let target = evt.target;
+    if (target && target.classList.contains('preview')) {
+      popup.style.display = 'flex';
+      const path = target.parentNode.getAttribute('href');
+      bigImg.setAttribute('src', path);
+    }
+    if (target && target.matches('div.popup')) {
+      popup.style.display = 'none';
+    }
+  });
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (imgPopup);
+
+/***/ }),
+
 /***/ "./src/js/modules/modals.js":
 /*!**********************************!*\
   !*** ./src/js/modules/modals.js ***!
@@ -403,10 +460,10 @@ const timerFunc = (selector, deadline) => {
   // * [fixed] Добавил в расчёт t поправку на разницу во времени между локальным и UTC при помощи метода getTimezoneOffset() который получает разницу в минутах.
   const getTimeRemaining = endtime => {
     const t = Date.parse(endtime) + new Date().getTimezoneOffset() * 60 * 1000 - Date.parse(new Date()),
-      seconds = Math.round(t / 1000 % 60),
-      minutes = Math.round(t / (1000 * 60) % 60),
-      hours = Math.round(t / (1000 * 60 * 60) % 24),
-      days = Math.round(t / (1000 * 60 * 60 * 24) - 1);
+      seconds = Math.floor(t / 1000 % 60),
+      minutes = Math.floor(t / (1000 * 60) % 60),
+      hours = Math.floor(t / (1000 * 60 * 60) % 24),
+      days = Math.floor(t / (1000 * 60 * 60 * 24));
     return {
       'total': t,
       'seconds': seconds,
@@ -14367,6 +14424,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_forms__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/forms */ "./src/js/modules/forms.js");
 /* harmony import */ var _modules_change_modal_state__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/change-modal-state */ "./src/js/modules/change-modal-state.js");
 /* harmony import */ var _modules_timer__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/timer */ "./src/js/modules/timer.js");
+/* harmony import */ var _modules_img_popup__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/img-popup */ "./src/js/modules/img-popup.js");
+
 
 
 
@@ -14381,7 +14440,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
   let modalState = {};
   // * Чтобы таймер заработал понадобится переменная с дедлайном.
-  const DEADLINE = '2023-12-01';
+  // const DEADLINE = '2024-01-01 09:59 UTC';
+  const DEADLINE = '2024-01-01';
   (0,_modules_modals__WEBPACK_IMPORTED_MODULE_1__["default"])();
   (0,_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.glazing_slider', '.glazing_block', '.glazing_content', 'active');
   (0,_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.decoration_slider', '.no_click', '.decoration_content > div > div', 'after_click');
@@ -14390,6 +14450,7 @@ window.addEventListener('DOMContentLoaded', () => {
   (0,_modules_forms__WEBPACK_IMPORTED_MODULE_3__["default"])(modalState);
   (0,_modules_change_modal_state__WEBPACK_IMPORTED_MODULE_4__["default"])(modalState);
   (0,_modules_timer__WEBPACK_IMPORTED_MODULE_5__["default"])('.container1', DEADLINE);
+  (0,_modules_img_popup__WEBPACK_IMPORTED_MODULE_6__["default"])();
 });
 })();
 

@@ -5,6 +5,7 @@ import tabsFunc from './modules/tabs';
 import formsFunc from './modules/forms';
 import changeModalStateFunc from './modules/change-modal-state';
 import timerFunc from './modules/timer';
+import imgPopup from './modules/img-popup';
 
 // ? Заметка: в то время, как все действия с модальным окнами мы скрыли внутри модуля modals. Это удобнее, т.к. внутри есть и функция bindModals(), которая подвязывает модальные окна к определённым триггерам и также функция, которая отвечает за вызов модального окна через определённое время. Вкладки лучше импортировать, как отдельную функцию и прямо здесь её настроить.
 // * 1.0 Создадим пустой объект состояния модального окна калькулятора балконного окна, куда мы будем заносить все выбранные и введённые данные пользователем для отправки заказа.
@@ -13,7 +14,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
   let modalState = {};
   // * Чтобы таймер заработал понадобится переменная с дедлайном.
-  const DEADLINE = '2023-12-01';
+  // const DEADLINE = '2024-01-01 09:59 UTC';
+  const DEADLINE = '2024-01-01';
 
   modalsFunc();
   tabsFunc('.glazing_slider', '.glazing_block', '.glazing_content', 'active');
@@ -23,4 +25,5 @@ window.addEventListener('DOMContentLoaded', () => {
   formsFunc(modalState);
   changeModalStateFunc(modalState);
   timerFunc('.container1', DEADLINE);
+  imgPopup();
 });

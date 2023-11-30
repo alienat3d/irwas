@@ -1,5 +1,10 @@
 /*Fonts Family*/
 /*Colors*/
+/* Custom */
+.flex-centered {
+  justify-content: center;
+  align-items: center;
+}
 /*Basic settings*/
 html {
   /* overflow-x: hidden; */

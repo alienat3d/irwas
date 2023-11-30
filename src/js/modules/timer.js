@@ -25,10 +25,10 @@ const timerFunc = (selector, deadline) => {
   // * [fixed] Добавил в расчёт t поправку на разницу во времени между локальным и UTC при помощи метода getTimezoneOffset() который получает разницу в минутах.
   const getTimeRemaining = (endtime) => {
     const t = (Date.parse(endtime) + (new Date().getTimezoneOffset() * 60 * 1000)) - Date.parse(new Date()),
-      seconds = Math.round((t / 1000) % 60),
-      minutes = Math.round((t / (1000 * 60)) % 60),
-      hours = Math.round((t / (1000 * 60 * 60)) % 24),
-      days = Math.round((t / (1000 * 60 * 60 * 24)) - 1);
+      seconds = Math.floor((t / 1000) % 60),
+      minutes = Math.floor((t / (1000 * 60)) % 60),
+      hours = Math.floor((t / (1000 * 60 * 60)) % 24),
+      days = Math.floor((t / (1000 * 60 * 60 * 24)));
 
     return {
       'total': t,
