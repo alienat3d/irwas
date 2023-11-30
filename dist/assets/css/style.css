@@ -5,6 +5,16 @@
   justify-content: center;
   align-items: center;
 }
+.faded {
+  animation: faded 1s;
+}
+.faded-fast {
+  animation: faded .3s;
+}
+@keyframes faded {
+  from {opacity: 0.1;}
+  to {opacity: 1;}
+}
 /*Basic settings*/
 html {
   /* overflow-x: hidden; */

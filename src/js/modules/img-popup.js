@@ -37,6 +37,7 @@ const imgPopup = () => {
 
     if (target && target.classList.contains('preview')) {
       popup.style.display = 'flex';
+      popup.classList.add('faded-fast');
       const path = target.parentNode.getAttribute('href');
       bigImg.setAttribute('src', path);
     }
