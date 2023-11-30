@@ -400,8 +400,9 @@ const timerFunc = (selector, deadline) => {
     }
     return num;
   };
+  // * [fixed] Добавил в расчёт t поправку на разницу во времени между локальным и UTC при помощи метода getTimezoneOffset() который получает разницу в минутах.
   const getTimeRemaining = endtime => {
-    const t = Date.parse(endtime) - Date.parse(new Date()),
+    const t = Date.parse(endtime) + new Date().getTimezoneOffset() * 60 * 1000 - Date.parse(new Date()),
       seconds = Math.round(t / 1000 % 60),
       minutes = Math.round(t / (1000 * 60) % 60),
       hours = Math.round(t / (1000 * 60 * 60) % 24),
@@ -14380,7 +14381,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   let modalState = {};
   // * Чтобы таймер заработал понадобится переменная с дедлайном.
-  const DEADLINE = '2024-01-01T00:00:00.000+03:00';
+  const DEADLINE = '2023-12-01';
   (0,_modules_modals__WEBPACK_IMPORTED_MODULE_1__["default"])();
   (0,_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.glazing_slider', '.glazing_block', '.glazing_content', 'active');
   (0,_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.decoration_slider', '.no_click', '.decoration_content > div > div', 'after_click');

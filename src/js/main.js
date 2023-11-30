@@ -13,7 +13,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   let modalState = {};
   // * Чтобы таймер заработал понадобится переменная с дедлайном.
-  const DEADLINE = '2024-01-01T00:00:00.000+03:00';
+  const DEADLINE = '2023-12-01';
 
   modalsFunc();
   tabsFunc('.glazing_slider', '.glazing_block', '.glazing_content', 'active');
