@@ -12,6 +12,8 @@ window.addEventListener('DOMContentLoaded', () => {
   'use strict';
 
   let modalState = {};
+  // * Чтобы таймер заработал понадобится переменная с дедлайном.
+  const DEADLINE = '2024-01-01T00:00:00.000+03:00';
 
   modalsFunc();
   tabsFunc('.glazing_slider', '.glazing_block', '.glazing_content', 'active');
@@ -20,5 +22,5 @@ window.addEventListener('DOMContentLoaded', () => {
   // * Чтобы отправляемая форма знала о нашем объекте modalState, нужно его передать в функцию formsFunc().
   formsFunc(modalState);
   changeModalStateFunc(modalState);
-  timerFunc();
+  timerFunc('.container1', DEADLINE);
 });
