@@ -5,16 +5,25 @@
   justify-content: center;
   align-items: center;
 }
+
 .faded {
   animation: faded 1s;
 }
+
 .faded-fast {
   animation: faded .3s;
 }
+
 @keyframes faded {
-  from {opacity: 0.1;}
-  to {opacity: 1;}
+  from {
+    opacity: 0.1;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
+
 /*Basic settings*/
 html {
   /* overflow-x: hidden; */
@@ -130,6 +139,8 @@ textarea:focus {
 }
 
 .button {
+  z-index: 1;
+  position: relative;
   padding: 2.5rem 0rem;
   font-size: 1.7rem;
   font-family: 'Open Sans', sans-serif;
@@ -137,14 +148,29 @@ textarea:focus {
   font-style: normal;
   border: 1px solid #ffc600;
   border-radius: 1rem;
-  background: -webkit-gradient(linear, left top, left bottom, from(#ffed26), to(#ffb400));
-  background: linear-gradient(180deg, #ffed26 0%, #ffb400 100%);
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#ffed26), to(#ffb400));
+  background-image: linear-gradient(180deg, #ffed26 0%, #ffb400 100%);
   -webkit-box-shadow: 1px 2px 20px 0px rgba(255, 153, 0, 0.4);
   box-shadow: 1px 2px 20px 0px rgba(255, 153, 0, 0.4);
+}
+.button::before {
+  position: absolute;
+  content: '';
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-image: linear-gradient(360deg, #ffed26 0%, #ffb400 100%);
+  z-index: -1;
+  transition: opacity 0.5s linear;
+  opacity: 0;
 }
 
 .button:hover {
   cursor: pointer;
+}
+.button:hover::before {
+  opacity: 1;
 }
 
 .section_header {
@@ -169,7 +195,7 @@ textarea:focus {
   transform: translateX(-50%);
   width: 17rem;
   height: 0.2rem;
-  background: url(../img/glazing/line.png) 0 0 no-repeat;
+  background: url("../img/glazing/line.png") 0 0 no-repeat;
 }
 
 .arrow {
@@ -185,13 +211,13 @@ textarea:focus {
 
 .prev {
   left: 0;
-  background: url(../img/glazing/left_arrow.png) center no-repeat;
+  background: url("../img/glazing/left_arrow.png") center no-repeat;
   background-size: 70%;
 }
 
 .next {
   right: 0;
-  background: url(../img/glazing/right_arrow.png) center no-repeat;
+  background: url("../img/glazing/right_arrow.png") center no-repeat;
   background-size: 70%;
 }
 
@@ -225,7 +251,7 @@ textarea:focus {
 }
 
 .header_btn {
-  background: #ffffff url(../img/header/edit.png) 1rem center no-repeat;
+  background: #ffffff url("../img/header/edit.png") 1rem center no-repeat;
   padding: 1rem 1rem 1rem 5rem;
   border: 2px solid #55a831;
   border-radius: 1rem;
@@ -331,8 +357,8 @@ textarea:focus {
 
 /*Main*/
 .main {
-  padding: 10rem 0;
-  background: #ffffff url(../img/main/bg.png) 0 0 no-repeat;
+  padding: 9rem 0;
+  background: #ffffff url("../img/main/bg.png") 0 0 no-repeat;
 }
 
 .main h1 {
@@ -387,6 +413,16 @@ textarea:focus {
   display: inline-block;
 }
 
+.glazing_block:hover {
+  cursor: pointer;
+}
+
+.glazing_block:hover a,
+.glazing_block.active {
+  color: #ffb903;
+  text-decoration: none;
+}
+
 .glazing_block img {
   display: block;
   margin: 0 auto;
@@ -397,14 +433,11 @@ textarea:focus {
   font-size: 1.8rem;
   font-weight: 600;
   text-decoration: underline;
-  /*&:focus {
-				text-decoration: none;
-				color: #454545;
-			}*/
+  transition: all .2s;
 }
-
-.glazing_block a:hover {
-  cursor: pointer;
+.glazing_block a:focus {
+  text-decoration: none;
+  color: #ffb903;
 }
 
 .glazing_cold {
@@ -465,7 +498,7 @@ textarea:focus {
   margin-right: 1.7rem;
   width: 2.5rem;
   height: 2.5rem;
-  background: url(../img/glazing/check.png) no-repeat center;
+  background: url("../img/glazing/check.png") no-repeat center;
   background-size: 100%;
   vertical-align: middle;
 }
@@ -530,18 +563,19 @@ textarea:focus {
   cursor: pointer;
 }
 
-.decoration_item a:focus {
+.decoration_item a:focus,
+.decoration_item a:hover {
   border: none;
   text-decoration: none;
   color: #0089cd;
-  /*border-top: 1rem solid @blue;
+  /* border-top: 1rem solid @blue;
 				height: 8rem;
 				padding: 2rem 1rem;
 				background: -webkit-linear-gradient(-90deg, #ebebeb 0%, #ebebeb 0%, rgba(255, 255, 255, 0) 100%);
 				background: -moz-linear-gradient(-90deg, #ebebeb 0%, #ebebeb 0%, rgba(255, 255, 255, 0) 100%);
 				background: -o-linear-gradient(-90deg, #ebebeb 0%, #ebebeb 0%, rgba(255, 255, 255, 0) 100%);
 				background: -ms-linear-gradient(-90deg, #ebebeb 0%, #ebebeb 0%, rgba(255, 255, 255, 0) 100%);
-				background: linear-gradient(180deg, #ebebeb 0%, #ebebeb 0%, rgba(255, 255, 255, 0) 100%);*/
+				background: linear-gradient(180deg, #ebebeb 0%, #ebebeb 0%, rgba(255, 255, 255, 0) 100%); */
 }
 
 .decoration_item .no_click {
@@ -634,7 +668,7 @@ textarea:focus {
 }
 
 .guarantees_header_sub {
-  background: url(../img/guarantees/header_sub.png) 0 0 no-repeat;
+  background: url("../img/guarantees/header_sub.png") 0 0 no-repeat;
 }
 
 .guarantees h3 {
@@ -679,8 +713,8 @@ textarea:focus {
 
 /*Sale*/
 .sale {
-  padding: 8rem 0;
-  background: #ffffff url(../img/sale/bg.jpg) center center no-repeat;
+  padding: 6.5rem 0;
+  background: #ffffff url("../img/sale/bg.jpg") center center no-repeat;
 }
 
 .sale_title {
@@ -729,7 +763,7 @@ textarea:focus {
   margin-right: 2px;
   background-color: #575757;
   border-radius: 7px;
-  padding: 4px;
+  padding: 4px 6px;
 }
 
 .description1 {
@@ -1072,7 +1106,7 @@ textarea:focus {
 }
 
 .checkbox-custom[id="cold"]::before {
-  background: url(../img/modal_calc/check.png) center center no-repeat;
+  background: url("../img/modal_calc/check.png") center center no-repeat;
 }
 
 .no-background {
@@ -1080,7 +1114,7 @@ textarea:focus {
 }
 
 .checkbox-custom[id="warm"]::before {
-  background: url(../img/modal_calc/check_warm.png) center center no-repeat;
+  background: url("../img/modal_calc/check_warm.png") center center no-repeat;
 }
 
 .popup_calc_profile_content .label {
@@ -1311,7 +1345,7 @@ textarea:focus {
 
   .sale {
     padding: 5rem 0;
-    background: #ffffff url(../img/sale/bg.jpg) right center no-repeat;
+    background: #ffffff url("../img/sale/bg.jpg") right center no-repeat;
     background-size: cover;
   }
 
@@ -1596,7 +1630,7 @@ textarea:focus {
   .main {
     padding: 3rem 0;
     padding-bottom: 5rem;
-    background: #ffffff url(../img/main/bg.png) 0 0 no-repeat;
+    background: #ffffff url("../img/main/bg.png") 0 0 no-repeat;
     background-size: cover;
   }
 
