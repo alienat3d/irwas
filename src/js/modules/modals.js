@@ -26,7 +26,8 @@ const modalsFunc = () => {
     const trigger = document.querySelectorAll(triggerSelector),
       modal = document.querySelector(modalSelector),
       close = document.querySelector(closeSelector),
-      windows = document.querySelectorAll('[data-modal]');
+      windows = document.querySelectorAll('[data-modal]'),
+      scroll = calcScroll();
 
     trigger.forEach(btn => {
       btn.addEventListener('click', (evt) => {
@@ -35,10 +36,13 @@ const modalsFunc = () => {
         }
 
         windows.forEach(window => window.style.display = 'none');
-
+        // * 4.7 Ну и теперь, там где мы включаем наше модальное окно, пропишем также всему body margin-right на ширину "scroll". Но следует не забыть и убирать этот отступ при закрытии модальных окон. ↓
         modal.style.display = 'block';
         // document.body.classList.add('modal-open');
-        document.body.style.overflow = 'hidden';
+        document.body.style.cssText = `
+          overflow: hidden;
+          margin-right: ${scroll}px;
+        `;
       });
     });
 
@@ -46,7 +50,10 @@ const modalsFunc = () => {
       windows.forEach(window => window.style.display = 'none');
       // modal.style.display = 'none';
       // document.body.classList.remove('modal-open');
-      document.body.style.overflow = '';
+      document.body.style.cssText = `
+        overflow: visible;
+        margin-right: 0;
+      `;
     });
     // 1.0.9 Скрываем модальное окно по клику на подложке (вне области контента модального окна). Подробнее говоря о том, как это работает: когда мы кликаем вне области контента модального окна, то это и будет родительский элемент из переменной modal, а если внутри области контента модального окна, то уже дочерние, например "form", "input" и т.д. и по клику на них модальное окно закрываться соответственно не будет.
     modal.addEventListener('click', (evt) => {
@@ -54,7 +61,10 @@ const modalsFunc = () => {
         windows.forEach(window => window.style.display = 'none');
         // modal.style.display = 'none';
         // document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
+        document.body.style.cssText = `
+          overflow: visible;
+          margin-right: 0;
+        `;
       }
     });
 
@@ -63,7 +73,10 @@ const modalsFunc = () => {
         windows.forEach(window => window.style.display = 'none');
         // modal.style.display = 'none';
         // document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
+        document.body.style.cssText = `
+          overflow: visible;
+          margin-right: 0;
+        `;
       }
     });
   };
@@ -76,6 +89,31 @@ const modalsFunc = () => {
   //   }, timer);
   // };
   // ? Если б мы делали этот проект на фреймворках, то логичнее было бы рендерить модальные окна калькулятора балконных окон прямо из JS, но здесь работаем с обычной вёрсткой, поэтому приходится прописать все три модальных окна друг за другом.
+
+  // * 4.0 Настало время исправить баг, когда при открытии модальных окон исчезает скроллбар справа и из-за этого весь сайт будто бы прыгает вправо. Мы можем исправить это поведение, добавляя отступ ровно на ширину скроллбара, и желательно найти её программно, т.к. в разных браузерах это значение может быть разным. Этим у нас будет заниматься функция calcScroll().
+  // 4.1 Чтобы произвести расчёты нам понадобится div.
+  // 4.2 Пропишем ему пару свойств, чтобы этот блок не маячил перед глазами пользователя даже на доли секунды.
+  // 4.3 Добавим его в body.
+  // 4.4 Теперь собственно к вычислению ширины скроллбара. Для этого мы берём наш div и узнаём его полную ширину (включая scrollbar) свойством offsetWidth и из него вычитаем значение из свойства clientWidth, где находится ширина только самого главного контента, включая padding. Но самое главное, что туда не включается ширина scrollbar. Так мы получим точную ширину самого scrollbar.
+  // 4.5 Ну и после измерений нам этот div уже не нужен, можно смело его удалять.
+  // 4.6 Теперь запишем в переменную scroll результаты наших измерений. ↑
+  const calcScroll = () => {
+    let div = document.createElement('div');
+
+    div.style.width = '50px';
+    div.style.height = '50px';
+    div.style.overflowY = 'scroll';
+    div.style.visibility = 'hidden';
+
+    document.body.appendChild(div);
+
+    let scrollWidth = div.offsetWidth - div.clientWidth;
+
+    div.remove();
+
+    return scrollWidth;
+  };
+
   bindModal('.popup_engineer_btn', '.popup_engineer', '.popup_engineer .popup_close');
   bindModal('.phone_link', '.popup', '.popup .popup_close');
 
